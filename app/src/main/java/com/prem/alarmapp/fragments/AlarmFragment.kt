@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -33,21 +35,17 @@ import org.kodein.di.generic.instance
 import java.util.*
 
 @Suppress("DEPRECATION")
-class AlarmFragment : Fragment(), KodeinAware {
+class AlarmFragment : Fragment(R.layout.fragment_alarm), KodeinAware {
     override val kodein by kodein()
     private val factory: AlarmViewModelFactory by instance()
-    private var viewModel: AlarmViewModel? = null
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var viewModel: AlarmViewModel? = null
     private var adapter: AlarmAdapter? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        //this tells the fragment hey, we've got a menu item
         setHasOptionsMenu(true)
-        val view = inflater.inflate(R.layout.fragment_alarm, container, false)
 
         viewModel = ViewModelProvider(this, factory).get(AlarmViewModel::class.java)
 
@@ -142,8 +140,6 @@ class AlarmFragment : Fragment(), KodeinAware {
                 )
             }
         }).attachToRecyclerView(recyclerView)
-        return view
-
     }
 
 
@@ -159,6 +155,7 @@ class AlarmFragment : Fragment(), KodeinAware {
 
                 val alarm = Alarms(time!!, repeatDay!!, alarmIsActive)
                 //insert the alarm into database using our viewmodel instance
+                Log.d("TAG", "onActivityResult: ${alarm.AlarmIsEnabled}, ${alarm.id}, ${alarm.repeatDays}, ${alarm.time}")
                 viewModel!!.insert(alarm)
 
                 displaySuccessToast(requireContext(), "alarm created successfully")

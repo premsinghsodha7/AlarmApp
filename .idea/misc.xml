@@ -3,8 +3,18 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/ic_alarm.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/ic_alarm_stop.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/ic_contact_us.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/ic_delete_black_24dp.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/ic_settings.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/ic_share.xml" value="0.2203125" />
         <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/ic_snooze.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/recycler_item_bg.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable-v24/settings_bg.xml" value="0.2203125" />
         <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable/about_app_bg.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable/btn_bg.xml" value="0.2203125" />
+        <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/drawable/ic_cancel.xml" value="0.2203125" />
         <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/layout/about_app.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/layout/activity_main.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/Prem Singh Sodha/Downloads/TimelyApp-master/TimelyApp-master/app/src/main/res/layout/custom_bottom_bar.xml" value="0.20416666666666666" />

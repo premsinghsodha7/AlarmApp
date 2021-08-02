@@ -16,7 +16,7 @@
     <string name="every_wednesday">Every Wednesday</string>
     <string name="every_tuesday">Every Tuesday</string>
     <string name="every_monday">Every Monday</string>
-    <string name="empty_rec_text">no alarm created yet\nSmash the + icon at the top right corner\nto create a new alarm</string>
+    <string name="empty_rec_text">no alarm created yet\nTap the + icon at the top right corner\nto create a new alarm</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="about_app">About App</string>
     <string name="App_policy">Privacy Policy</string>

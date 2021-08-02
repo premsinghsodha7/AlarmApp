@@ -1,13 +1,14 @@
 package com.prem.alarmapp.data.repository
 
-import com.prem.alarmapp.data.database.AlarmDatabase
+import androidx.lifecycle.LiveData
 import com.prem.alarmapp.data.entities.Alarms
 
+interface AlarmRepository {
 
-class AlarmRepository(private val db: AlarmDatabase) {
-    suspend fun insert(alarm: Alarms) = db.getAlarmDao().insert(alarm)
-    suspend fun update(alarm: Alarms) = db.getAlarmDao().update(alarm)
-    suspend fun delete(alarm: Alarms) = db.getAlarmDao().delete(alarm)
-    suspend fun deleteAllAlarms() = db.getAlarmDao().deleteAllAlarms()
-    fun getAllAlarms() = db.getAlarmDao().getAllAlarms()
+    suspend fun insert(alarm: Alarms)
+    suspend fun update(alarm: Alarms)
+    suspend fun delete(alarm: Alarms)
+    suspend fun deleteAllAlarms()
+    fun getAllAlarms(): LiveData<List<Alarms>>
+
 }

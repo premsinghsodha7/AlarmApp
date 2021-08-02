@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.widget.CompoundButton
 import androidx.appcompat.app.AppCompatActivity
 import com.prem.alarmapp.R
