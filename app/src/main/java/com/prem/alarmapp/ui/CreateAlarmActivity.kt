@@ -8,25 +8,35 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.widget.CompoundButton
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
 import com.prem.alarmapp.R
-import com.prem.alarmapp.fragments.AlarmFragment.Toast.displayFailureToast
+import com.prem.alarmapp.ui.fragments.AlarmFragment.Toast.displayFailureToast
 import com.prem.alarmapp.receiver.AlarmReceiver
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import kotlinx.android.synthetic.main.activity_create_alarm.*
 import java.util.*
 
 
 class CreateAlarmActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener {
 
     lateinit var AM_PM: String
+
+    private lateinit var cg_days_chips: ChipGroup
+    private lateinit var timeTV: TextView
+    private lateinit var btn_choose_time: MaterialButton
+    private lateinit var btn_set_alarm: MaterialButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        //get sharedprefs of switch(our switch from settings)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_alarm)
+
+        cg_days_chips = findViewById(R.id.cg_days_chips)
+        timeTV = findViewById(R.id.timeTV)
+        btn_choose_time = findViewById(R.id.btn_choose_time)
+        btn_set_alarm = findViewById(R.id.btn_set_alarm)
 
         addDayChips()
 
@@ -159,15 +169,6 @@ class CreateAlarmActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeL
                 )
             }
 
-        }
-
-        //cancel alarm function
-        fun cancelAlarm(id: Int, context: Context) {
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, AlarmReceiver::class.java)
-            val pendingIntent =
-                PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            alarmManager.cancel(pendingIntent)
         }
 
         const val ALARM_TIME = "ALARM_TIME"

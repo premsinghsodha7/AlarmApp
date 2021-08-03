@@ -6,7 +6,6 @@ import com.prem.alarmapp.data.repository.AlarmRepository
 import com.prem.alarmapp.data.repository.DefaultAlarmRepository
 
 
-@Suppress("UNCHECKED_CAST")
 class AlarmViewModelFactory(private val repositoryDefault: DefaultAlarmRepository):
     ViewModelProvider.NewInstanceFactory(){
 

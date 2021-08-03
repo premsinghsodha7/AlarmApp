@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 package com.prem.alarmapp
-
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData

@@ -1,15 +1,15 @@
 package com.prem.alarmapp.ui
 
 
-import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.navigation.fragment.NavHostFragment
 import com.prem.alarmapp.R
 import com.prem.alarmapp.notification.ACTION_STOP_ALARM
 import com.prem.alarmapp.receiver.AlarmReceiver
+import dagger.hilt.android.AndroidEntryPoint
 
-@SuppressLint("ResourceType")
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,8 +17,10 @@ class MainActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //init Navigation
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        supportActionBar
+
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         val navController = navHostFragment.navController
 
         val action = intent!!.action

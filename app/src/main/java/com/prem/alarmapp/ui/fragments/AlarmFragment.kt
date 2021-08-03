@@ -1,76 +1,97 @@
-package com.prem.alarmapp.fragments
+package com.prem.alarmapp.ui.fragments
 
-import android.annotation.SuppressLint
-import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import androidx.annotation.VisibleForTesting
+import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.prem.alarmapp.R
-import com.prem.alarmapp.adapter.AlarmAdapter
-import com.prem.alarmapp.data.entities.Alarms
-import com.prem.alarmapp.fragments.AlarmFragment.Toast.displayFailureToast
-import com.prem.alarmapp.fragments.AlarmFragment.Toast.displaySuccessToast
+import com.prem.alarmapp.ui.adapter.AlarmAdapter
+import com.prem.alarmapp.ui.fragments.AlarmFragment.Toast.displaySuccessToast
 import com.prem.alarmapp.ui.AlarmViewModel
-import com.prem.alarmapp.ui.AlarmViewModelFactory
-import com.prem.alarmapp.ui.CreateAlarmActivity
 import com.muddzdev.styleabletoastlibrary.StyleableToast
+import com.prem.alarmapp.receiver.AlarmReceiver
+import com.prem.alarmapp.utils.Status
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
-import kotlinx.android.synthetic.main.fragment_alarm.*
-import org.kodein.di.KodeinAware
-import org.kodein.di.android.x.kodein
-import org.kodein.di.generic.instance
 import java.util.*
 
-@Suppress("DEPRECATION")
-class AlarmFragment : Fragment(R.layout.fragment_alarm), KodeinAware {
-    override val kodein by kodein()
-    private val factory: AlarmViewModelFactory by instance()
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+class AlarmFragment(
     var viewModel: AlarmViewModel? = null
-    private var adapter: AlarmAdapter? = null
+) : Fragment(R.layout.fragment_alarm) {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var emptyRecView: RelativeLayout
+
+    private var adapter: AlarmAdapter = AlarmAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)
+        viewModel = viewModel?:ViewModelProvider(requireActivity()).get(AlarmViewModel::class.java)
 
-        viewModel = ViewModelProvider(this, factory).get(AlarmViewModel::class.java)
+        recyclerView = view.findViewById(R.id.recycler_view)
+        emptyRecView = view.findViewById(R.id.emptyRecView)
 
-        adapter = AlarmAdapter(viewModel!!, listOf())
+        subscribeToObservers()
+        setupRecyclerview()
+    }
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = adapter
-
-        viewModel!!.getAllAlarms().observe(viewLifecycleOwner, Observer {
-            //this checks if the recyclerview is empty
+    private fun subscribeToObservers(){
+        viewModel!!.getAllAlarms().observe(viewLifecycleOwner, {
             if (it.isEmpty()) {
                 emptyRecView.visibility = View.VISIBLE
             } else {
                 emptyRecView.visibility = View.GONE
             }
-            adapter!!.alarmList = it
-            adapter!!.notifyDataSetChanged()
+            adapter.alarmItems = it
         })
 
+        viewModel!!.deleteAlarmItemStatus.observe(viewLifecycleOwner, {
+            it.getContentIfNotHandled()?.let {result ->
+                when(result.status){
+                    Status.SUCCESS -> {
+                        Snackbar.make(
+                            requireView().rootView,
+                            result.data?:"Deleted Successfully",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                        findNavController().popBackStack()
+                    }
+                    Status.ERROR -> {
+                        Snackbar.make(
+                            requireView().rootView,
+                            result.message?: "An unknown error occurred",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                    Status.LOADING -> {
+                        /* No-OP */
+                    }
+                }
+            }
+        })
+    }
 
-        //swipe delete function
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            0,
-            ItemTouchHelper.LEFT
+    private val itemTouchCallback = //swipe delete function
+        object : ItemTouchHelper.SimpleCallback(
+            0, ItemTouchHelper.LEFT
         ) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -85,16 +106,13 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm), KodeinAware {
                 if (direction == ItemTouchHelper.LEFT) {
                     val adapterPosition = viewHolder.adapterPosition
                     //get item adapter position
-                    val deletedAlarm = adapter!!.getAlarmAt(adapterPosition)
+                    val deletedAlarm = adapter.alarmItems[adapterPosition]
                     //delete it from the view model
                     viewModel!!.delete(deletedAlarm)
                     //cancel its alarm
-                    CreateAlarmActivity.cancelAlarm(deletedAlarm.id, requireContext())
+                    cancelAlarm(deletedAlarm.id!!, requireContext())
                     //set its alarm to false
                     deletedAlarm.AlarmIsEnabled = false
-                    //notifies the recyclerview that an item was removed
-                    adapter!!.notifyItemRemoved(adapterPosition)
-
                     displaySuccessToast(requireContext(), "Alarm deleted")
                 }
             }
@@ -139,52 +157,19 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm), KodeinAware {
                     isCurrentlyActive
                 )
             }
-        }).attachToRecyclerView(recyclerView)
-    }
-
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode != Activity.RESULT_CANCELED && data != null) {
-            // get intent data from create alarm activity
-            if (requestCode == CREATE_ALARM_REQUEST && resultCode == Activity.RESULT_OK) {
-                val time = data.getStringExtra(CreateAlarmActivity.ALARM_TIME)
-                val repeatDay = data.getStringExtra(CreateAlarmActivity.ALARM_REPEAT_DAYS)
-                val alarmIsActive = data.getBooleanExtra(CreateAlarmActivity.ALARM_IsON, true)
-
-                val alarm = Alarms(time!!, repeatDay!!, alarmIsActive)
-                //insert the alarm into database using our viewmodel instance
-                Log.d("TAG", "onActivityResult: ${alarm.AlarmIsEnabled}, ${alarm.id}, ${alarm.repeatDays}, ${alarm.time}")
-                viewModel!!.insert(alarm)
-
-                displaySuccessToast(requireContext(), "alarm created successfully")
-            } else {
-                displayFailureToast(requireContext(), "an error occurred")
-            }
         }
 
-    }
-
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.main_menu_items, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    @SuppressLint("InflateParams")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.create_new_alarm) {
-            val intent = Intent(context, CreateAlarmActivity::class.java)
-            startActivityForResult(intent, CREATE_ALARM_REQUEST)
+    private fun setupRecyclerview(){
+        recyclerView.apply {
+            adapter = adapter
+            layoutManager = LinearLayoutManager(requireContext())
+            ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
         }
-        return super.onOptionsItemSelected(item)
     }
 
 
     override fun onStart() {
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.Alarms)
-
         super.onStart()
     }
 
@@ -199,8 +184,27 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm), KodeinAware {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater?.inflate(R.menu.main_menu_items, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return NavigationUI.onNavDestinationSelected(item,
+            view!!.findNavController())
+                || super.onOptionsItemSelected(item)
+    }
+
     companion object {
-        const val CREATE_ALARM_REQUEST = 1
+
+        //cancel alarm function
+        fun cancelAlarm(id: Int, context: Context) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, AlarmReceiver::class.java)
+            val pendingIntent =
+                PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            alarmManager.cancel(pendingIntent)
+        }
     }
 }
 

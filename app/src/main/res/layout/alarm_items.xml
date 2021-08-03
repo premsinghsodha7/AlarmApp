@@ -2,7 +2,8 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="100dp">
+    android:layout_height="100dp"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -15,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:fontFamily="@font/amaranth_bold"
-            android:text="@string/demo_time"
+            tools:text="@string/demo_time"
             android:textColor="?attr/textcolor"
             android:textSize="40sp"
             app:layout_constraintEnd_toStartOf="@+id/isActive"
@@ -38,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="3dp"
-            android:text="@string/demo_date"
+            tools:text="@string/demo_date"
             android:fontFamily="sans-serif-black"
             android:textColor="?attr/textcolor"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -5,17 +5,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "alarms_items")
-class Alarms(
+data class Alarms(
     @ColumnInfo(name = "alarm_time")
-    var time:String,
+    var time: String,
     @ColumnInfo(name = "repeat_days")
-    var repeatDays:String,
+    var repeatDays: String,
     @ColumnInfo(name = "AlarmIsEnabled")
-    var AlarmIsEnabled:Boolean=true
-        )
-{
+    var AlarmIsEnabled: Boolean = true,
     @PrimaryKey(autoGenerate = true)
-    var id:Int=0
-}
+    val id: Int? = null
+)
 
 

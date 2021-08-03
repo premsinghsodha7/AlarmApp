@@ -8,7 +8,7 @@ import com.prem.alarmapp.data.entities.Alarms
 interface AlarmDao {
 
     // this method  inserts alarm items into room database
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(alarm: Alarms)
 
     // this method  update an inserted alarm items into room database
