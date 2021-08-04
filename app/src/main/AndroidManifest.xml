@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.prem.alarmapp">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
@@ -13,9 +15,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/DarkMode">
-        <activity android:name="com.prem.alarmapp.ui.CreateAlarmActivity"
-            android:theme="@style/DarkMode">
-        </activity>
         <activity android:name="com.prem.alarmapp.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,9 +23,14 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.prem.alarmapp.service.Alarmservice" />
+        <service android:name="com.prem.alarmapp.service.AlarmService" />
+        <service android:name="com.prem.alarmapp.service.RescheduleAlarmsService" />
 
-        <receiver android:name="com.prem.alarmapp.receiver.AlarmReceiver" />
+        <receiver android:name="com.prem.alarmapp.receiver.AlarmReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <meta-data
             android:name="preloaded_fonts"

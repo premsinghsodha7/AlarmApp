@@ -6,24 +6,22 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.prem.alarmapp.R
 import com.prem.alarmapp.ui.adapter.AlarmAdapter
-import com.prem.alarmapp.ui.fragments.AlarmFragment.Toast.displaySuccessToast
 import com.prem.alarmapp.ui.AlarmViewModel
 import com.muddzdev.styleabletoastlibrary.StyleableToast
 import com.prem.alarmapp.receiver.AlarmReceiver
@@ -37,20 +35,25 @@ class AlarmFragment(
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyRecView: RelativeLayout
+    private lateinit var fabAdd: FloatingActionButton
 
-    private var adapter: AlarmAdapter = AlarmAdapter()
+    private lateinit var alarmAdapter: AlarmAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(true)
         viewModel = viewModel?:ViewModelProvider(requireActivity()).get(AlarmViewModel::class.java)
 
         recyclerView = view.findViewById(R.id.recycler_view)
         emptyRecView = view.findViewById(R.id.emptyRecView)
+        fabAdd = view.findViewById(R.id.fabAdd)
 
         subscribeToObservers()
         setupRecyclerview()
+
+        fabAdd.setOnClickListener{
+            it.findNavController().navigate(R.id.action_alarmFragment_to_create_new_alarm)
+        }
     }
 
     private fun subscribeToObservers(){
@@ -60,7 +63,7 @@ class AlarmFragment(
             } else {
                 emptyRecView.visibility = View.GONE
             }
-            adapter.alarmItems = it
+            alarmAdapter.alarmItems = it
         })
 
         viewModel!!.deleteAlarmItemStatus.observe(viewLifecycleOwner, {
@@ -72,7 +75,6 @@ class AlarmFragment(
                             result.data?:"Deleted Successfully",
                             Snackbar.LENGTH_LONG
                         ).show()
-                        findNavController().popBackStack()
                     }
                     Status.ERROR -> {
                         Snackbar.make(
@@ -105,15 +107,14 @@ class AlarmFragment(
 
                 if (direction == ItemTouchHelper.LEFT) {
                     val adapterPosition = viewHolder.adapterPosition
-                    //get item adapter position
-                    val deletedAlarm = adapter.alarmItems[adapterPosition]
+                    //get item alarmAdapter position
+                    val deletedAlarm = alarmAdapter.alarmItems[adapterPosition]
                     //delete it from the view model
                     viewModel!!.delete(deletedAlarm)
                     //cancel its alarm
-                    cancelAlarm(deletedAlarm.id!!, requireContext())
+                    CreateAlarmFragment.cancelAlarm(deletedAlarm.id!!, requireContext())
                     //set its alarm to false
                     deletedAlarm.AlarmIsEnabled = false
-                    displaySuccessToast(requireContext(), "Alarm deleted")
                 }
             }
 
@@ -160,55 +161,26 @@ class AlarmFragment(
         }
 
     private fun setupRecyclerview(){
+        alarmAdapter = AlarmAdapter()
         recyclerView.apply {
-            adapter = adapter
-            layoutManager = LinearLayoutManager(requireContext())
+            adapter = alarmAdapter
             ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
         }
-    }
 
-
-    override fun onStart() {
-        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.Alarms)
-        super.onStart()
-    }
-
-    // toast object
-    object Toast {
-        fun displaySuccessToast(context: Context, message: String) {
-            StyleableToast.makeText(context, message, R.style.myToast).show()
+        alarmAdapter.setOnActiveCheckChangeListener { b, alarms ->
+            alarms.AlarmIsEnabled = b
+            if (b){
+                CreateAlarmFragment.selectedDays.clear()
+                CreateAlarmFragment.startAlarm(alarms.id!!, requireContext())
+            }else{
+                CreateAlarmFragment.cancelAlarm(alarms.id!!, requireContext())
+            }
+            viewModel!!.updateAlarmItem(alarms.id, alarms.time, alarms.repeatDays, alarms.AlarmIsEnabled)
         }
 
-        fun displayFailureToast(context: Context, message: String) {
-            StyleableToast.makeText(context, message, R.style.myToast1).show()
+        alarmAdapter.setOnItemClickListener { view, alarms ->
+
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater?.inflate(R.menu.main_menu_items, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return NavigationUI.onNavDestinationSelected(item,
-            view!!.findNavController())
-                || super.onOptionsItemSelected(item)
-    }
-
-    companion object {
-
-        //cancel alarm function
-        fun cancelAlarm(id: Int, context: Context) {
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, AlarmReceiver::class.java)
-            val pendingIntent =
-                PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            alarmManager.cancel(pendingIntent)
-        }
-    }
 }
-
-
-
-
-

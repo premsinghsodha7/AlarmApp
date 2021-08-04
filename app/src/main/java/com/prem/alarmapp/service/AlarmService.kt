@@ -1,20 +1,20 @@
 package com.prem.alarmapp.service
 
 import android.app.AlarmManager
-import android.app.IntentService
 import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.IBinder
 import com.prem.alarmapp.notification.ACTION_SNOOZE_ALARM
 import com.prem.alarmapp.notification.ACTION_STOP_ALARM
 import com.prem.alarmapp.receiver.AlarmReceiver
 import java.util.*
 
-class Alarmservice : IntentService(Alarmservice::class.java.simpleName) {
-   private val notificationId = System.currentTimeMillis().toInt()
-    override fun onHandleIntent(intent: Intent?) {
-       val action=intent!!.action
-
+class AlarmService : Service() {
+    private val notificationId = System.currentTimeMillis().toInt()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val action=intent!!.action
 
         //stop alarm sound
         if(action == ACTION_STOP_ALARM){
@@ -27,6 +27,12 @@ class Alarmservice : IntentService(Alarmservice::class.java.simpleName) {
         else if(action== ACTION_SNOOZE_ALARM){
             snoozeAlarm()
         }
+
+        return START_STICKY
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 
     private fun snoozeAlarm() {
@@ -43,4 +49,5 @@ class Alarmservice : IntentService(Alarmservice::class.java.simpleName) {
             PendingIntent.getBroadcast(this, notificationId, intent, 0)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP,Calendar.getInstance().timeInMillis +5*6000,pendingIntent)
     }
+
 }

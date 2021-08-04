@@ -1,5 +1,6 @@
 package com.prem.alarmapp.ui.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,11 +22,13 @@ class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
 
     private val diffCallback = object : DiffUtil.ItemCallback<Alarms>() {
         override fun areItemsTheSame(oldItem: Alarms, newItem: Alarms): Boolean {
+            Log.d("TAG", "areItemsTheSame: "+(oldItem == newItem))
             return oldItem.id == newItem.id
+
         }
 
         override fun areContentsTheSame(oldItem: Alarms, newItem: Alarms): Boolean {
-            return oldItem.hashCode() == newItem.hashCode()
+            return oldItem == newItem
         }
     }
 
@@ -52,31 +55,26 @@ class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
 
         holder.time_tv.text = currentAlarm.time
         holder.days_tv.text = currentAlarm.repeatDays
+        holder.isActive.isChecked = currentAlarm.AlarmIsEnabled
 
         //this basically checks the state of the switch
-        holder.isActive.setOnCheckedChangeListener { _, isChecked ->
-//            if (isChecked) {
-//                currentAlarm.AlarmIsEnabled = true
-//
-//                CreateAlarmActivity.selectedDays.clear()
-//
-//                CreateAlarmActivity.startAlarm(currentAlarm.id, holder.itemView.context)
-//                alarmViewModel.update(currentAlarm)
-//            } else {
-//                currentAlarm.AlarmIsEnabled = false
-//                CreateAlarmActivity.cancelAlarm(currentAlarm.id,holder.itemView.context)
-//                alarmViewModel.update(currentAlarm)
-//            }
-
+        holder.isActive.setOnCheckedChangeListener { buttonView, isChecked ->
             onCheckChangeListener?.let {it(isChecked, currentAlarm)}
         }
 
-        holder.isActive.isChecked = currentAlarm.AlarmIsEnabled
+        holder.itemView.setOnClickListener {view->
+            onItemClickListener?.let {it(view, currentAlarm)}
+        }
     }
 
     private var onCheckChangeListener : ((Boolean, Alarms) -> Unit)? = null
+    private var onItemClickListener : ((View?, Alarms) -> Unit)? = null
 
     fun setOnActiveCheckChangeListener(listener:(Boolean, Alarms) -> Unit){
         onCheckChangeListener = listener
+    }
+
+    fun setOnItemClickListener(listener:(View?, Alarms) -> Unit){
+        onItemClickListener = listener
     }
 }

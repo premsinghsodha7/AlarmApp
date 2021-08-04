@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.TextView
@@ -14,9 +15,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.prem.alarmapp.R
 import com.prem.alarmapp.data.entities.Alarms
@@ -31,13 +35,13 @@ class CreateAlarmFragment(
     View.OnClickListener,
     CompoundButton.OnCheckedChangeListener {
 
-
+    val args: CreateAlarmFragmentArgs by navArgs()
     lateinit var AM_PM: String
 
     private lateinit var cg_days_chips: ChipGroup
     private lateinit var timeTV: TextView
     private lateinit var btn_choose_time: MaterialButton
-    private lateinit var btn_set_alarm: MaterialButton
+    private lateinit var fab_save: ExtendedFloatingActionButton
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,7 +54,7 @@ class CreateAlarmFragment(
         cg_days_chips = view.findViewById(R.id.cg_days_chips)
         timeTV = view.findViewById(R.id.timeTV)
         btn_choose_time = view.findViewById(R.id.btn_choose_time)
-        btn_set_alarm = view.findViewById(R.id.btn_set_alarm)
+        fab_save = view.findViewById(R.id.fab_save)
 
         //set title
         requireActivity().title = "Schedule Alarm"
@@ -58,7 +62,7 @@ class CreateAlarmFragment(
         addDayChips()
 
         btn_choose_time.setOnClickListener(this)
-        btn_set_alarm.setOnClickListener(this)
+        fab_save.setOnClickListener(this)
     }
 
     private fun subscribeToObservers() {
@@ -136,13 +140,16 @@ class CreateAlarmFragment(
 
                 timeTV.text=formattedTime
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false).show()
-        }else if (v!!.id == R.id.btn_set_alarm){
+        }else if (v!!.id == R.id.fab_save){
             if(TextUtils.isEmpty(timeTV.text)){
-                AlarmFragment.Toast.displayFailureToast(requireContext(), "please select a time")
+                Snackbar.make(
+                    requireView().rootView,
+                    "please select a time",
+                    Snackbar.LENGTH_SHORT
+                ).show()
                 return
             }
             saveAlarm()
-            
         }
     }
 
@@ -187,7 +194,7 @@ class CreateAlarmFragment(
     private fun ChipGroup.addChip(chipInitializer: Chip.() -> Unit) {
         val dayChip =
             layoutInflater.inflate(R.layout.layout_day_chip, null).findViewById<Chip>(R.id.chip_day)
-        dayChip.setChipBackgroundColorResource(R.color.chipColor)
+        dayChip.setChipBackgroundColorResource(R.color.Cardbackground_color1)
 
         val chip = dayChip.apply {
             chipInitializer(this)
@@ -204,12 +211,13 @@ class CreateAlarmFragment(
             }
         }
     }
-    
+
     companion object {
         var selectedDays = mutableListOf<String>()
         private var selectedHour = 0
         private var selectedMin = 0
-
+        const val RUN_DAILY = (24 * 60 * 60 * 1000).toLong()
+        const val RUN_WEEKLY = (7 * 24 * 60 * 60 * 1000).toLong()
         fun startAlarm(alarmId:Int,context: Context) {
             selectedDays.forEachIndexed { _, day ->
                 /**
@@ -218,24 +226,28 @@ class CreateAlarmFragment(
                  */
                 val indexOfDay = days.indexOf(day) + 1
 
-
                 val calendar = Calendar.getInstance().apply {
                     set(Calendar.DAY_OF_WEEK, indexOfDay)
                     set(Calendar.HOUR_OF_DAY, selectedHour)
                     set(Calendar.MINUTE, selectedMin)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
                 }
-                if (calendar.before(Calendar.getInstance())) {
-                    calendar.add(Calendar.DATE, 7)
+//                if (calendar.before(Calendar.getInstance())) {
+//                    calendar.add(Calendar.DATE, 7)
+//                }
+                if (calendar.timeInMillis <= System.currentTimeMillis()) {
+                    calendar[Calendar.DAY_OF_WEEK] = calendar[Calendar.DAY_OF_WEEK] + 1
                 }
 
                 val intent = Intent(context, AlarmReceiver::class.java)
                 val pendingIntent =
-                    PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                    PendingIntent.getBroadcast(context, alarmId, intent, 0)
                 val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                alarmManager.setInexactRepeating(
+                alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis,
-                    7 * 24 * 60 * 60 * 1000,
+                    RUN_WEEKLY,
                     pendingIntent
                 )
             }
@@ -244,14 +256,17 @@ class CreateAlarmFragment(
                 val calendar = Calendar.getInstance().apply {
                     set(Calendar.HOUR_OF_DAY, selectedHour)
                     set(Calendar.MINUTE, selectedMin)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
                 }
-                if (calendar.before(Calendar.getInstance())) {
-                    calendar.add(Calendar.DATE, 1)
+                // if alarm time has already passed, increment day by 1
+                if (calendar.timeInMillis <= System.currentTimeMillis()) {
+                    calendar[Calendar.DAY_OF_MONTH] = calendar[Calendar.DAY_OF_MONTH] + 1
                 }
 
                 val intent = Intent(context, AlarmReceiver::class.java)
                 val pendingIntent =
-                    PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                    PendingIntent.getBroadcast(context, alarmId, intent, 0)
                 val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                 alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
@@ -260,6 +275,15 @@ class CreateAlarmFragment(
                 )
             }
 
+        }
+
+        //cancel alarm function
+        fun cancelAlarm(id: Int, context: Context) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, AlarmReceiver::class.java)
+            val pendingIntent =
+                PendingIntent.getBroadcast(context, id, intent, 0)
+            alarmManager.cancel(pendingIntent)
         }
 
         const val ALARM_TIME = "ALARM_TIME"

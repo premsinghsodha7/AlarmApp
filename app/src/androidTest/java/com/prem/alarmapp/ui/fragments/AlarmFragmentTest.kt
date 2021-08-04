@@ -1,6 +1,8 @@
 package com.prem.alarmapp.ui.fragments
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -19,6 +21,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 import javax.inject.Inject
 
 @MediumTest
@@ -57,8 +60,20 @@ class AlarmFragmentTest{
                 ViewActions.swipeLeft()
             )
         )
-
         assertThat(testViewModel?.getAllAlarms()?.getOrAwaitValue()).isEmpty()
-//        assertThat(testViewModel?.getAllAlarms()?.getOrAwaitValue()).contains(alarm)
+    }
+
+    @Test
+    fun clickAddAlarmButtom_navigateToCreateAlarmFragment(){
+        val navController = Mockito.mock(NavController::class.java)
+
+        launchFragmentInHiltContainer<AlarmFragment>(
+            fragmentFactory = testFragmentFactory
+        ) {
+            Navigation.setViewNavController(requireView(), navController)
+        }
+
+        Espresso.onView(withId(R.id.fabAdd)).perform(ViewActions.click())
+        Mockito.verify(navController).navigate(R.id.action_alarmFragment_to_create_new_alarm)
     }
 }
