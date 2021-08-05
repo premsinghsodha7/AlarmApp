@@ -2,6 +2,13 @@ package com.prem.alarmapp
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import timber.log.Timber
 
 @HiltAndroidApp
-class AlarmApplication : Application()
+class AlarmApplication : Application(){
+
+    override fun onCreate() {
+        super.onCreate()
+        Timber.plant(Timber.DebugTree())
+    }
+}

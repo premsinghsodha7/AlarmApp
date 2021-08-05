@@ -13,9 +13,6 @@ class TestAlarmFragmentFactory : FragmentFactory() {
             AlarmFragment::class.java.name -> AlarmFragment(
                 AlarmViewModel(FakeAlarmRepositoryAndroidTest())
             )
-            CreateAlarmFragment::class.java.name -> CreateAlarmFragment(
-                AlarmViewModel(FakeAlarmRepositoryAndroidTest())
-            )
             else -> super.instantiate(classLoader, className)
         }
     }

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.prem.alarmapp.R
 import com.prem.alarmapp.data.entities.Alarms
+import com.prem.alarmapp.utils.Util
 
 class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
 
@@ -22,7 +23,6 @@ class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
 
     private val diffCallback = object : DiffUtil.ItemCallback<Alarms>() {
         override fun areItemsTheSame(oldItem: Alarms, newItem: Alarms): Boolean {
-            Log.d("TAG", "areItemsTheSame: "+(oldItem == newItem))
             return oldItem.id == newItem.id
 
         }
@@ -53,8 +53,8 @@ class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
     override fun onBindViewHolder(holder: AlarmViewHolder, position: Int) {
         val currentAlarm = alarmItems[position]
 
-        holder.time_tv.text = currentAlarm.time
-        holder.days_tv.text = currentAlarm.repeatDays
+        holder.time_tv.text = Util.convertTime(currentAlarm.time)
+        holder.days_tv.text = Util.convertDate(currentAlarm.time)
         holder.isActive.isChecked = currentAlarm.AlarmIsEnabled
 
         //this basically checks the state of the switch

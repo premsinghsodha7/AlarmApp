@@ -4,14 +4,17 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.lifecycle.LifecycleService
 import com.prem.alarmapp.data.repository.DefaultAlarmRepository
-import com.prem.alarmapp.ui.fragments.CreateAlarmFragment
 import javax.inject.Inject
 
 class RescheduleAlarmsService : LifecycleService() {
+
+    private var alarmService: AlarmService? = null
     @Inject
     lateinit var alarmRepository: DefaultAlarmRepository
+
     override fun onCreate() {
         super.onCreate()
+        alarmService = AlarmService(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -19,7 +22,8 @@ class RescheduleAlarmsService : LifecycleService() {
 
         alarmRepository.getAllAlarms().observe(this, { alarms ->
             for (a in alarms) {
-                CreateAlarmFragment.startAlarm(a.id!!, this)
+                if (a.AlarmIsEnabled)
+                    alarmService?.setRepetitiveAlarm(a.time)
             }
         })
         return START_STICKY
@@ -27,6 +31,7 @@ class RescheduleAlarmsService : LifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        alarmService = null
     }
 
     override fun onBind(intent: Intent): IBinder? {

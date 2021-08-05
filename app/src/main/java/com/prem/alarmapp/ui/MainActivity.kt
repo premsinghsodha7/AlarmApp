@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity(){
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //val sharedprefs = getSharedPreferences("pref", Context.MODE_PRIVATE)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -30,13 +29,13 @@ class MainActivity : AppCompatActivity(){
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        val action = intent!!.action
-
-        //stop alarm sound on notification click
-        if(action == ACTION_STOP_ALARM){
-            AlarmReceiver.taskRingtone!!.stop()
-            AlarmReceiver.vibrator!!.cancel()
-        }
+//        val action = intent!!.action
+//
+//        //stop alarm sound on notification click
+//        if(action == ACTION_STOP_ALARM){
+//            AlarmReceiver.taskRingtone!!.stop()
+//            AlarmReceiver.vibrator!!.cancel()
+//        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

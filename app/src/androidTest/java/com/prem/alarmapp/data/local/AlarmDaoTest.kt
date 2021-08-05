@@ -62,7 +62,7 @@ class AlarmDaoTest {
 
     @Test
     fun insertAlarmItem() = runBlockingTest {
-        val alarm = Alarms("3:15 PM", "Mon", true, 1)
+        val alarm = Alarms(1628167127846, true, 1)
         dao.insert(alarm)
         val allAlarmItem = dao.getAllAlarms().getOrAwaitValue()
         assertThat(allAlarmItem).contains(alarm)
@@ -70,9 +70,9 @@ class AlarmDaoTest {
 
     @Test
     fun updateAlarmItem() = runBlockingTest {
-        var alarm = Alarms("3:15 PM", "Mon", true, 1)
+        var alarm = Alarms(1628167127846, true, 1)
         dao.insert(alarm)
-        alarm = Alarms("3:15 PM", "Mon", false, 1)
+        alarm = Alarms(1628167127846, false, 1)
         dao.update(alarm)
 
         val allAlarmItem = dao.getAllAlarms().getOrAwaitValue()
@@ -81,7 +81,7 @@ class AlarmDaoTest {
 
     @Test
     fun deleteAlarmItem() = runBlockingTest {
-        val alarm = Alarms("3:15 PM", "Mon", true, 1)
+        val alarm = Alarms(1628167127846, true, 1)
         dao.insert(alarm)
         dao.delete(alarm)
 

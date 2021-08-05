@@ -1,7 +1,9 @@
 package com.prem.alarmapp.ui.fragments
 
 import android.app.AlarmManager
+import android.app.DatePickerDialog
 import android.app.PendingIntent
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
@@ -25,6 +27,7 @@ import com.prem.alarmapp.ui.adapter.AlarmAdapter
 import com.prem.alarmapp.ui.AlarmViewModel
 import com.muddzdev.styleabletoastlibrary.StyleableToast
 import com.prem.alarmapp.receiver.AlarmReceiver
+import com.prem.alarmapp.service.AlarmService
 import com.prem.alarmapp.utils.Status
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import java.util.*
@@ -38,9 +41,11 @@ class AlarmFragment(
     private lateinit var fabAdd: FloatingActionButton
 
     private lateinit var alarmAdapter: AlarmAdapter
+    lateinit var alarmService: AlarmService
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        alarmService = AlarmService(requireContext())
 
         viewModel = viewModel?:ViewModelProvider(requireActivity()).get(AlarmViewModel::class.java)
 
@@ -52,7 +57,42 @@ class AlarmFragment(
         setupRecyclerview()
 
         fabAdd.setOnClickListener{
-            it.findNavController().navigate(R.id.action_alarmFragment_to_create_new_alarm)
+            //it.findNavController().navigate(R.id.action_alarmFragment_to_create_new_alarm)
+            setAlarm {
+                alarmService.setRepetitiveAlarm(it)
+                viewModel!!.insertAlarmItem(it, true)
+            }
+        }
+    }
+
+    private fun setAlarm(callback: (Long) -> Unit) {
+        Calendar.getInstance().apply {
+            this.set(Calendar.SECOND, 0)
+            this.set(Calendar.MILLISECOND, 0)
+            DatePickerDialog(
+                requireContext(),
+                0,
+                { _, year, month, day ->
+                    this.set(Calendar.YEAR, year)
+                    this.set(Calendar.MONTH, month)
+                    this.set(Calendar.DAY_OF_MONTH, day)
+                    TimePickerDialog(
+                        requireContext(),
+                        0,
+                        { _, hour, minute ->
+                            this.set(Calendar.HOUR_OF_DAY, hour)
+                            this.set(Calendar.MINUTE, minute)
+                            callback(this.timeInMillis)
+                        },
+                        this.get(Calendar.HOUR_OF_DAY),
+                        this.get(Calendar.MINUTE),
+                        false
+                    ).show()
+                },
+                this.get(Calendar.YEAR),
+                this.get(Calendar.MONTH),
+                this.get(Calendar.DAY_OF_MONTH)
+            ).show()
         }
     }
 
@@ -109,12 +149,10 @@ class AlarmFragment(
                     val adapterPosition = viewHolder.adapterPosition
                     //get item alarmAdapter position
                     val deletedAlarm = alarmAdapter.alarmItems[adapterPosition]
+                    //cancel its alarm
+                    alarmService.cancelAlarm(deletedAlarm.time)
                     //delete it from the view model
                     viewModel!!.delete(deletedAlarm)
-                    //cancel its alarm
-                    CreateAlarmFragment.cancelAlarm(deletedAlarm.id!!, requireContext())
-                    //set its alarm to false
-                    deletedAlarm.AlarmIsEnabled = false
                 }
             }
 
@@ -168,14 +206,14 @@ class AlarmFragment(
         }
 
         alarmAdapter.setOnActiveCheckChangeListener { b, alarms ->
+            Log.d("TAG", "setupRecyclerview: ")
             alarms.AlarmIsEnabled = b
             if (b){
-                CreateAlarmFragment.selectedDays.clear()
-                CreateAlarmFragment.startAlarm(alarms.id!!, requireContext())
+                alarmService.setRepetitiveAlarm(alarms.time)
             }else{
-                CreateAlarmFragment.cancelAlarm(alarms.id!!, requireContext())
+                alarmService.cancelAlarm(alarms.time)
             }
-            viewModel!!.updateAlarmItem(alarms.id, alarms.time, alarms.repeatDays, alarms.AlarmIsEnabled)
+            viewModel!!.updateAlarmItem(alarms.id!!, alarms.time, alarms.AlarmIsEnabled)
         }
 
         alarmAdapter.setOnItemClickListener { view, alarms ->

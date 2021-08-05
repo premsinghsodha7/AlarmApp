@@ -7,9 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "alarms_items")
 data class Alarms(
     @ColumnInfo(name = "alarm_time")
-    var time: String,
-    @ColumnInfo(name = "repeat_days")
-    var repeatDays: String,
+    var time: Long,
     @ColumnInfo(name = "AlarmIsEnabled")
     var AlarmIsEnabled: Boolean = true,
     @PrimaryKey(autoGenerate = true)

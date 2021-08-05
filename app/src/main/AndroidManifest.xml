@@ -23,7 +23,6 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.prem.alarmapp.service.AlarmService" />
         <service android:name="com.prem.alarmapp.service.RescheduleAlarmsService" />
 
         <receiver android:name="com.prem.alarmapp.receiver.AlarmReceiver">

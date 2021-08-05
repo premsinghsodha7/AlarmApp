@@ -2,52 +2,86 @@ package com.prem.alarmapp.service
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.IBinder
-import com.prem.alarmapp.notification.ACTION_SNOOZE_ALARM
-import com.prem.alarmapp.notification.ACTION_STOP_ALARM
+import android.os.Build
 import com.prem.alarmapp.receiver.AlarmReceiver
-import java.util.*
+import com.prem.alarmapp.utils.Constants
+import com.prem.alarmapp.utils.Util
 
-class AlarmService : Service() {
-    private val notificationId = System.currentTimeMillis().toInt()
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val action=intent!!.action
+class AlarmService(private val context: Context) {
 
-        //stop alarm sound
-        if(action == ACTION_STOP_ALARM){
-            if(AlarmReceiver.taskRingtone!!.isPlaying){
-                AlarmReceiver.taskRingtone!!.stop()
-                AlarmReceiver.vibrator!!.cancel()
+    private val alarmManager: AlarmManager? =
+        context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
+
+    fun setExactAlarm(timeInMillis: Long) {
+        setAlarm(
+            timeInMillis,
+            getPendingIntent(
+                getIntent().apply {
+                    action = Constants.ACTION_SET_EXACT
+                    putExtra(Constants.EXTRA_EXACT_ALARM_TIME, timeInMillis)
+                },
+                timeInMillis
+            )
+        )
+    }
+
+    //1 Week
+    fun setRepetitiveAlarm(timeInMillis: Long) {
+        setAlarm(
+            timeInMillis,
+            getPendingIntent(
+                getIntent().apply {
+                    action = Constants.ACTION_SET_REPETITIVE_EXACT
+                    putExtra(Constants.EXTRA_EXACT_ALARM_TIME, timeInMillis)
+                },
+                timeInMillis
+            )
+        )
+    }
+
+    private fun getPendingIntent(intent: Intent, requestID : Long) =
+        PendingIntent.getBroadcast(
+            context,
+            requestID.toInt(),/*getRandomRequestCode()*/
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+
+    private fun setAlarm(timeInMillis: Long, pendingIntent: PendingIntent) {
+        alarmManager?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    timeInMillis,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    timeInMillis,
+                    pendingIntent
+                )
             }
         }
-        //snooze
-        else if(action== ACTION_SNOOZE_ALARM){
-            snoozeAlarm()
+    }
+
+    //cancel alarm
+    fun cancelAlarm(timeInMillis: Long) {
+        alarmManager?.let {
+            it.cancel(
+                getPendingIntent(
+                    getIntent(),
+                    timeInMillis
+                )
+            )
         }
-
-        return START_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+    private fun getIntent() = Intent(context, AlarmReceiver::class.java)
 
-    private fun snoozeAlarm() {
-        //cancel previous alarm tone
-        if(AlarmReceiver.taskRingtone!!.isPlaying){
-            AlarmReceiver.taskRingtone!!.stop()
-            AlarmReceiver.vibrator!!.cancel()
-        }
-
-        //remind the user in 2 minutes
-        val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, AlarmReceiver::class.java)
-        val pendingIntent =
-            PendingIntent.getBroadcast(this, notificationId, intent, 0)
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP,Calendar.getInstance().timeInMillis +5*6000,pendingIntent)
-    }
+    private fun getRandomRequestCode() = Util.getRandomInt()
 
 }

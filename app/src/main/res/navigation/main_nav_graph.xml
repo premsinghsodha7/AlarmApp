@@ -8,20 +8,6 @@
     <fragment
         android:id="@+id/alarmFragment"
         android:name="com.prem.alarmapp.ui.fragments.AlarmFragment"
-        android:label="Alarm" >
-        <action
-            android:id="@+id/action_alarmFragment_to_create_new_alarm"
-            app:destination="@id/create_new_alarm" />
-    </fragment>
+        android:label="Alarm" />
 
-    <fragment
-        android:id="@+id/create_new_alarm"
-        android:name="com.prem.alarmapp.ui.fragments.CreateAlarmFragment"
-        android:label="Schedule Alarm"
-        tools:layout="@layout/fragment_create_alarm">
-        <argument
-            android:name="isUpdate"
-            app:argType="boolean"
-            android:defaultValue="false" />
-    </fragment>
 </navigation>
