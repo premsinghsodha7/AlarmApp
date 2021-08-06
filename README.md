@@ -42,4 +42,4 @@ Note: you need a basic knowledge of java or kotlin to understand this app’s so
 ## HiltExt ->
 contain extensions which help us to launch fragments
 
-### I have using Jetpack navigation component My motive to handle in future for example if we want to use add alarm as new fragment them we will easily handle navigation
+### I have using Jetpack navigation component My motive to handle in future for example if we want to use add alarm as new fragment then we will easily handle navigation as well testing
