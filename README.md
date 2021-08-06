@@ -3,14 +3,14 @@
 Alarm App
 
 ## Features:
-###-swipe delete alarm item functionality
-###-schedule repeating alarms
-###-alarm off and alarm on functionality​
-###-snooze for 5 Minutes
-###-user friendly interface
-###-Unit Testing 
-###-UI Testing
-### And lots more
+#### -swipe delete alarm item functionality
+#### -schedule repeating alarms
+#### -alarm off and alarm on functionality​
+#### -snooze for 5 Minutes
+#### -user friendly interface
+#### -Unit Testing 
+#### -UI Testing
+#### And lots more
 
 ## Installation
 We assume you've installed android studio already, Unzip the file and open it in android studio, sync and run..
