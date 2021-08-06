@@ -35,26 +35,25 @@ class AlarmReceiver : BroadcastReceiver() {
             val timeInMillis = intent.getLongExtra(Constants.EXTRA_EXACT_ALARM_TIME, 0L)
 
             when (intent.action) {
+                //if we have single Alarm
                 Constants.ACTION_SET_EXACT -> {
                     buildNotification(context, "Reminder", timeInMillis)
-                    Timber.d("Reciever: ACTION_SET_EXACT")
                 }
+                //if we have repetitive Alarm 7 days interval
                 Constants.ACTION_SET_REPETITIVE_EXACT -> {
                     setRepetitiveAlarm(AlarmService(context), timeInMillis)
                     buildNotification(context, "Scheduled Reminder", timeInMillis)
-                    Timber.d("Reciever: ACTION_SET_REPETITIVE_EXACT")
                 }
+                //when tap on notification snooze action
                 Constants.ACTION_SNOOZE -> {
                     stopAlert(context)
                     //Snooze for 5 Minutes
                     val snoozeTimeMillis = System.currentTimeMillis() + 5 * DateUtils.MINUTE_IN_MILLIS
                     AlarmService(context).setExactAlarm(snoozeTimeMillis)
-                    Timber.d("Reciever: ACTION_SNOOZE")
                 }
+                //when tap on notification stop action
                 Constants.ACTION_STOP -> {
                     stopAlert(context)
-                    Timber.d("Reciever: ACTION_STOP")
-
                 }
             }
         }
@@ -85,6 +84,10 @@ class AlarmReceiver : BroadcastReceiver() {
         Notify.cancelNotification(22255)
     }
 
+    //when device reboot we have to schedule alarm again
+    /*
+    * when device reboot the start this service, check all alarm from database and reschedule
+    * */
     private fun startRescheduleAlarmsService(context: Context) {
         val intentService = Intent(context, RescheduleAlarmsService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -94,10 +97,14 @@ class AlarmReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun buildNotification(context: Context, title: String, timeInMillis: Long) {
 
+    private fun buildNotification(context: Context, title: String, timeInMillis: Long) {
         startAlert(context)
 
+        /*
+        * this notify library help to build notification very easily
+        * check out io.karn:notify
+        * */
         Notify
             .with(context)
             .meta { // this: Payload.Meta
@@ -158,6 +165,7 @@ class AlarmReceiver : BroadcastReceiver() {
             .show(id = 22255)
     }
 
+    //when alarm triggered and its repetitive the we have schedule again in 7 day Interval
     private fun setRepetitiveAlarm(alarmService: AlarmService, timeInMillis: Long) {
         val cal = Calendar.getInstance().apply {
             this.timeInMillis = timeInMillis + TimeUnit.DAYS.toMillis(7)

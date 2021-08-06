@@ -9,6 +9,7 @@ class AlarmApplication : Application(){
 
     override fun onCreate() {
         super.onCreate()
+        //Timber for logging
         Timber.plant(Timber.DebugTree())
     }
 }

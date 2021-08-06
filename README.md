@@ -20,7 +20,7 @@ How To Use
 -After installing successfully on android studio, run on a virtual device or a physical device.
  navigate to the home page, click on the FAB(floating action button) “+” to create a new alarm.
 -On click FAB(floating action button) “+” Display dialog for date selection and time selection
-And choose your specific logo,then navigate to the manifest.xml file, look for android:roundIcon under application and change it to yours.
+-swap to delete Alarm item from database
 
 Unit test
 -review package(test directory)
@@ -41,3 +41,5 @@ LiveDataUtilAndroidTest ->
 
 HiltExt ->
 contain extensions which help us to launch fragments
+
+I have using Jetpack navigation component My motive to handle in future for example if we want to use add alarm as new fragment them we will easily handle navigation
