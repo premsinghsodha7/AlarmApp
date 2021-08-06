@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.net.Uri
@@ -13,20 +12,24 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.text.format.DateUtils
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.prem.alarmapp.R
 import com.prem.alarmapp.service.AlarmService
 import com.prem.alarmapp.service.RescheduleAlarmsService
 import com.prem.alarmapp.ui.MainActivity
 import com.prem.alarmapp.utils.Constants
 import com.prem.alarmapp.utils.Util.convertDateTime
+import dagger.hilt.android.AndroidEntryPoint
 import io.karn.notify.Notify
 import timber.log.Timber
-
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
+
+    @Inject
+    lateinit var alarmService: AlarmService
 
     override fun onReceive(context: Context, intent: Intent) {
         if (Intent.ACTION_BOOT_COMPLETED == intent.action) {
@@ -41,19 +44,19 @@ class AlarmReceiver : BroadcastReceiver() {
                 }
                 //if we have repetitive Alarm 7 days interval
                 Constants.ACTION_SET_REPETITIVE_EXACT -> {
-                    setRepetitiveAlarm(AlarmService(context), timeInMillis)
+                    setRepetitiveAlarm(timeInMillis)
                     buildNotification(context, "Scheduled Reminder", timeInMillis)
                 }
                 //when tap on notification snooze action
                 Constants.ACTION_SNOOZE -> {
-                    stopAlert(context)
+                    stopAlert()
                     //Snooze for 5 Minutes
                     val snoozeTimeMillis = System.currentTimeMillis() + 5 * DateUtils.MINUTE_IN_MILLIS
-                    AlarmService(context).setExactAlarm(snoozeTimeMillis)
+                    alarmService.setExactAlarm(snoozeTimeMillis)
                 }
                 //when tap on notification stop action
                 Constants.ACTION_STOP -> {
-                    stopAlert(context)
+                    stopAlert()
                 }
             }
         }
@@ -75,7 +78,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     //when user tap top to stop we have to stop alert
-    private fun stopAlert(context: Context){
+    private fun stopAlert(){
         if(taskRingtone!!.isPlaying){
             taskRingtone!!.stop()
             vibrator!!.cancel()
@@ -166,7 +169,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     //when alarm triggered and its repetitive the we have schedule again in 7 day Interval
-    private fun setRepetitiveAlarm(alarmService: AlarmService, timeInMillis: Long) {
+    private fun setRepetitiveAlarm(timeInMillis: Long) {
         val cal = Calendar.getInstance().apply {
             this.timeInMillis = timeInMillis + TimeUnit.DAYS.toMillis(7)
             Timber.d("Set alarm for next week same time - ${convertDateTime(this.timeInMillis)}")

@@ -6,6 +6,8 @@ import com.prem.alarmapp.data.dao.AlarmDao
 import com.prem.alarmapp.data.database.AlarmDatabase
 import com.prem.alarmapp.data.repository.AlarmRepository
 import com.prem.alarmapp.data.repository.DefaultAlarmRepository
+import com.prem.alarmapp.service.AlarmService
+import com.prem.alarmapp.ui.adapter.AlarmAdapter
 import com.prem.alarmapp.utils.Constants.DATABASE_NAME
 import dagger.Module
 import dagger.Provides
@@ -35,4 +37,14 @@ object AppModule {
     fun provideDefaultAlarmRepository(
         dao: AlarmDao
     ) = DefaultAlarmRepository(dao) as AlarmRepository
+
+    @Singleton
+    @Provides
+    fun provideAlarmService(
+        @ApplicationContext context: Context
+    )= AlarmService(context)
+
+    @Singleton
+    @Provides
+    fun provideAlarmRecyclerviewAdapter() = AlarmAdapter()
 }

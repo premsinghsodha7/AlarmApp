@@ -21,7 +21,7 @@ import com.prem.alarmapp.R
 import com.prem.alarmapp.data.entities.Alarms
 import com.prem.alarmapp.getOrAwaitValue
 import com.prem.alarmapp.launchFragmentInHiltContainer
-import com.prem.alarmapp.ui.AlarmViewModel
+import com.prem.alarmapp.ui.viewmodels.AlarmViewModel
 import com.prem.alarmapp.ui.adapter.AlarmAdapter
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -31,6 +31,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.*
+import androidx.test.uiautomator.UiSelector
+
+import androidx.test.uiautomator.UiObject
+
 
 @MediumTest
 @HiltAndroidTest
@@ -74,7 +78,7 @@ class AlarmFragmentTest{
             testViewModel = viewModel
         }
 
-        onView(withId(R.id.fabAdd)).perform(ViewActions.click())
+        onView(withId(R.id.fabAdd)).perform(click())
         // Sets a time in a view picker widget
         onView(isAssignableFrom(DatePicker::class.java)).perform(
             PickerActions.setDate(
@@ -126,7 +130,7 @@ class AlarmFragmentTest{
             testViewModel = viewModel
         }
 
-        onView(withId(R.id.fabAdd)).perform(ViewActions.click())
+        onView(withId(R.id.fabAdd)).perform(click())
         // Sets a time in a view picker widget
         onView(isAssignableFrom(DatePicker::class.java)).perform(
             PickerActions.setDate(
@@ -157,7 +161,7 @@ class AlarmFragmentTest{
             testViewModel = viewModel
         }
 
-        onView(withId(R.id.fabAdd)).perform(ViewActions.click())
+        onView(withId(R.id.fabAdd)).perform(click())
         // Sets a time in a view picker widget
         onView(isAssignableFrom(DatePicker::class.java)).perform(
             PickerActions.setDate(
@@ -196,7 +200,7 @@ class AlarmFragmentTest{
             testViewModel = viewModel
         }
 
-        onView(withId(R.id.fabAdd)).perform(ViewActions.click())
+        onView(withId(R.id.fabAdd)).perform(click())
         // Sets a time in a view picker widget
         onView(isAssignableFrom(DatePicker::class.java)).perform(
             PickerActions.setDate(

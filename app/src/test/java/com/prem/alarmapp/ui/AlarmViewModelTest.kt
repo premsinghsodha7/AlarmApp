@@ -4,15 +4,14 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
 import com.prem.alarmapp.MainCoroutineRule
 import com.prem.alarmapp.data.entities.Alarms
-import com.prem.alarmapp.data.repository.AlarmRepository
 import com.prem.alarmapp.getOrAwaitValueTest
 import com.prem.alarmapp.repository.FakeAlarmRepository
+import com.prem.alarmapp.ui.viewmodels.AlarmViewModel
 import com.prem.alarmapp.utils.Status
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.TimeoutException
 
 @ExperimentalCoroutinesApi
 class AlarmViewModelTest{

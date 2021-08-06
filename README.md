@@ -12,34 +12,34 @@ Features:
 -UI Testing
 And lots more
 
-Installation
+## Installation
 We assume you've installed android studio already, Unzip the file and open it in android studio, sync and run..
 Note: you need a basic knowledge of java or kotlin to understand this app’s source code.
 
-How To Use
+## How To Use
 -After installing successfully on android studio, run on a virtual device or a physical device.
  navigate to the home page, click on the FAB(floating action button) “+” to create a new alarm.
 -On click FAB(floating action button) “+” Display dialog for date selection and time selection
 -swap to delete Alarm item from database
 
-Unit test
+## Unit test
 -review package(test directory)
 -in package find repository directory which contain fakeRepository for unit test 
 -in ui package find AlarmViewModelTest which contain all testcases of viewmodel 
 
-UI test using Hilt
+## UI test using Hilt
 -review package(Android test directory)
 -in package find data.local directory which contain Alarm Dao test cases
 -repository directory which contain fakeRepository for android test 
 -ui.fragment contain all view testing testcases 
 
 ------
-For test Runner i use Hilt runner Custom you can find in AndroidTest HiltTestRunner named class and also it register in build.gradle (Project)in andorid body
+### For test Runner i use Hilt runner Custom you can find in AndroidTest HiltTestRunner named class and also it register in build.gradle (Project)in andorid body
 
-LiveDataUtilAndroidTest ->
+## LiveDataUtilAndroidTest ->
 -use for livedata testing 
 
-HiltExt ->
+## HiltExt ->
 contain extensions which help us to launch fragments
 
-I have using Jetpack navigation component My motive to handle in future for example if we want to use add alarm as new fragment them we will easily handle navigation
+### I have using Jetpack navigation component My motive to handle in future for example if we want to use add alarm as new fragment them we will easily handle navigation

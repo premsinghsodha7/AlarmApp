@@ -1,25 +1,18 @@
 package com.prem.alarmapp.ui.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.switchmaterial.SwitchMaterial
-import com.prem.alarmapp.R
 import com.prem.alarmapp.data.entities.Alarms
+import com.prem.alarmapp.databinding.AlarmItemsBinding
 import com.prem.alarmapp.utils.Util
 
 class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
 
-    class AlarmViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        val time_tv = itemView.findViewById<TextView>(R.id.time_tv)
-        val days_tv = itemView.findViewById<TextView>(R.id.days_tv)
-        val isActive = itemView.findViewById<SwitchMaterial>(R.id.isActive)
-    }
+    class AlarmViewHolder(var viewBinding: AlarmItemsBinding) : RecyclerView.ViewHolder(viewBinding.root)
 
     private val diffCallback = object : DiffUtil.ItemCallback<Alarms>() {
         override fun areItemsTheSame(oldItem: Alarms, newItem: Alarms): Boolean {
@@ -39,13 +32,21 @@ class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
         set(value) = differ.submitList(value)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlarmViewHolder {
+//        val view = AlarmItemsBinding.inflate(LayoutInflater.from(parent.context) , parent,false)
+//        return AlarmViewHolder(view)
         return AlarmViewHolder(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.alarm_items,
-                parent,
-                false
-            )
+            AlarmItemsBinding.inflate(
+                LayoutInflater.from(parent.context)
+                , parent,
+                false)
         )
+//        return AlarmViewHolder(
+//            LayoutInflater.from(parent.context).inflate(
+//                R.layout.alarm_items,
+//                parent,
+//                false
+//            )
+//        )
     }
 
     override fun getItemCount() = alarmItems.size
@@ -53,16 +54,16 @@ class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
     override fun onBindViewHolder(holder: AlarmViewHolder, position: Int) {
         val currentAlarm = alarmItems[position]
 
-        holder.time_tv.text = Util.convertTime(currentAlarm.time)
-        holder.days_tv.text = Util.convertDate(currentAlarm.time)
-        holder.isActive.isChecked = currentAlarm.AlarmIsEnabled
+        holder.viewBinding.timeTv.text = Util.convertTime(currentAlarm.time)
+        holder.viewBinding.daysTv.text = Util.convertDate(currentAlarm.time)
+        holder.viewBinding.isActive.isChecked = currentAlarm.AlarmIsEnabled
 
         //this basically checks the state of the switch
-        holder.isActive.setOnCheckedChangeListener { buttonView, isChecked ->
+        holder.viewBinding.isActive.setOnCheckedChangeListener { buttonView, isChecked ->
             onCheckChangeListener?.let {it(isChecked, currentAlarm)}
         }
 
-        holder.itemView.setOnClickListener {view->
+        holder.viewBinding.root.setOnClickListener {view->
             onItemClickListener?.let {it(view, currentAlarm)}
         }
     }

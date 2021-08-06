@@ -1,63 +1,68 @@
 package com.prem.alarmapp.ui.fragments
 
-import android.app.AlarmManager
 import android.app.DatePickerDialog
-import android.app.PendingIntent
 import android.app.TimePickerDialog
-import android.content.Context
-import android.content.Intent
 import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.RelativeLayout
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
-import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.prem.alarmapp.R
+import com.prem.alarmapp.databinding.FragmentAlarmBinding
 import com.prem.alarmapp.ui.adapter.AlarmAdapter
-import com.prem.alarmapp.ui.AlarmViewModel
-import com.muddzdev.styleabletoastlibrary.StyleableToast
-import com.prem.alarmapp.receiver.AlarmReceiver
+import com.prem.alarmapp.ui.viewmodels.AlarmViewModel
 import com.prem.alarmapp.service.AlarmService
 import com.prem.alarmapp.utils.Status
+import dagger.hilt.android.AndroidEntryPoint
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AlarmFragment(
     var viewModel: AlarmViewModel? = null
-) : Fragment(R.layout.fragment_alarm) {
+) : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var emptyRecView: RelativeLayout
-    private lateinit var fabAdd: FloatingActionButton
+    private var _binding: FragmentAlarmBinding? = null
+    private val binding get() = _binding!!
 
-    private lateinit var alarmAdapter: AlarmAdapter
+    @Inject
+    lateinit var alarmAdapter: AlarmAdapter
+
+    @Inject
     lateinit var alarmService: AlarmService
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentAlarmBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        alarmService = AlarmService(requireContext())
 
+        //alarmService = AlarmService(requireContext())
+        //init viewmodel
         viewModel = viewModel?:ViewModelProvider(requireActivity()).get(AlarmViewModel::class.java)
 
-        recyclerView = view.findViewById(R.id.recycler_view)
-        emptyRecView = view.findViewById(R.id.emptyRecView)
-        fabAdd = view.findViewById(R.id.fabAdd)
-
+        //observe livedata from viewmodel
         subscribeToObservers()
+        //setup recyclerview ie: adapters and adapter listeners
         setupRecyclerview()
 
-        fabAdd.setOnClickListener{
-            //it.findNavController().navigate(R.id.action_alarmFragment_to_create_new_alarm)
+        //fab add listener to schedule and save alarm in database
+        binding.fabAdd.setOnClickListener{
             setAlarm {
                 alarmService.setRepetitiveAlarm(it)
                 viewModel!!.insertAlarmItem(it, true)
@@ -65,6 +70,11 @@ class AlarmFragment(
         }
     }
 
+
+    /*
+    * to set alarm
+    * callback to get selected datetime and schedule alarm accordingly
+    * */
     private fun setAlarm(callback: (Long) -> Unit) {
         Calendar.getInstance().apply {
             this.set(Calendar.SECOND, 0)
@@ -96,12 +106,13 @@ class AlarmFragment(
         }
     }
 
+    //livedata observers viewmodel
     private fun subscribeToObservers(){
         viewModel!!.getAllAlarms().observe(viewLifecycleOwner, {
             if (it.isEmpty()) {
-                emptyRecView.visibility = View.VISIBLE
+                binding.emptyRecView.visibility = View.VISIBLE
             } else {
-                emptyRecView.visibility = View.GONE
+                binding.emptyRecView.visibility = View.GONE
             }
             alarmAdapter.alarmItems = it
         })
@@ -131,6 +142,7 @@ class AlarmFragment(
         })
     }
 
+    // swipe recyclerview item action delete item from database and cancel the scheduled alarm
     private val itemTouchCallback = //swipe delete function
         object : ItemTouchHelper.SimpleCallback(
             0, ItemTouchHelper.LEFT
@@ -198,9 +210,9 @@ class AlarmFragment(
             }
         }
 
+    //set recyclerview and adapter
     private fun setupRecyclerview(){
-        alarmAdapter = AlarmAdapter()
-        recyclerView.apply {
+        binding.recyclerView.apply {
             adapter = alarmAdapter
             ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
         }
@@ -216,9 +228,12 @@ class AlarmFragment(
             viewModel!!.updateAlarmItem(alarms.id!!, alarms.time, alarms.AlarmIsEnabled)
         }
 
-        alarmAdapter.setOnItemClickListener { view, alarms ->
+        /*alarmAdapter.setOnItemClickListener { view, alarms ->}*/
+    }
 
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

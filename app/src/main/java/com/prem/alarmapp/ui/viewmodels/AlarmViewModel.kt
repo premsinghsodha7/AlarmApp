@@ -1,4 +1,4 @@
-package com.prem.alarmapp.ui
+package com.prem.alarmapp.ui.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

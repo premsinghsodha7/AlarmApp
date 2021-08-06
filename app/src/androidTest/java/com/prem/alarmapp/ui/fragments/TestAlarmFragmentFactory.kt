@@ -3,8 +3,7 @@ package com.prem.alarmapp.ui.fragments
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import com.prem.alarmapp.repositories.FakeAlarmRepositoryAndroidTest
-import com.prem.alarmapp.ui.AlarmViewModel
-import javax.inject.Inject
+import com.prem.alarmapp.ui.viewmodels.AlarmViewModel
 
 class TestAlarmFragmentFactory : FragmentFactory() {
 
