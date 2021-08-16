@@ -37,7 +37,7 @@ class AlarmDaoTest {
     lateinit var database: AlarmDatabase
     private lateinit var dao: AlarmDao
 
-    lateinit var testFragmentFactory: TestAlarmFragmentFactory
+    private lateinit var testFragmentFactory: TestAlarmFragmentFactory
 
     @Before
     fun setup(){

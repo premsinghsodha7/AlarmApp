@@ -21,8 +21,8 @@ import com.prem.alarmapp.R
 import com.prem.alarmapp.data.entities.Alarms
 import com.prem.alarmapp.getOrAwaitValue
 import com.prem.alarmapp.launchFragmentInHiltContainer
-import com.prem.alarmapp.ui.viewmodels.AlarmViewModel
 import com.prem.alarmapp.ui.adapter.AlarmAdapter
+import com.prem.alarmapp.ui.viewmodels.AlarmViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import junit.framework.Assert.assertEquals
@@ -31,9 +31,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.*
-import androidx.test.uiautomator.UiSelector
-
-import androidx.test.uiautomator.UiObject
 
 
 @MediumTest
@@ -47,8 +44,8 @@ class AlarmFragmentTest{
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    lateinit var testFragmentFactory: TestAlarmFragmentFactory
-    lateinit var uiDevice: UiDevice
+    private lateinit var testFragmentFactory: TestAlarmFragmentFactory
+    private lateinit var uiDevice: UiDevice
 
     @Before
     fun setup(){

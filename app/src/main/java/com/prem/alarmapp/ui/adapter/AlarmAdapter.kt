@@ -32,21 +32,12 @@ class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
         set(value) = differ.submitList(value)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlarmViewHolder {
-//        val view = AlarmItemsBinding.inflate(LayoutInflater.from(parent.context) , parent,false)
-//        return AlarmViewHolder(view)
         return AlarmViewHolder(
             AlarmItemsBinding.inflate(
                 LayoutInflater.from(parent.context)
                 , parent,
                 false)
         )
-//        return AlarmViewHolder(
-//            LayoutInflater.from(parent.context).inflate(
-//                R.layout.alarm_items,
-//                parent,
-//                false
-//            )
-//        )
     }
 
     override fun getItemCount() = alarmItems.size
@@ -59,7 +50,7 @@ class AlarmAdapter : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
         holder.viewBinding.isActive.isChecked = currentAlarm.AlarmIsEnabled
 
         //this basically checks the state of the switch
-        holder.viewBinding.isActive.setOnCheckedChangeListener { buttonView, isChecked ->
+        holder.viewBinding.isActive.setOnCheckedChangeListener { _, isChecked ->
             onCheckChangeListener?.let {it(isChecked, currentAlarm)}
         }
 

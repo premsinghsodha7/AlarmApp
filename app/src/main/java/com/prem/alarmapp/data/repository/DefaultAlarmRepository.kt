@@ -1,7 +1,6 @@
 package com.prem.alarmapp.data.repository
 
 import com.prem.alarmapp.data.dao.AlarmDao
-import com.prem.alarmapp.data.database.AlarmDatabase
 import com.prem.alarmapp.data.entities.Alarms
 import javax.inject.Inject
 
